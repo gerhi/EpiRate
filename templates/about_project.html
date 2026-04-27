@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}{{ translate('About the Project') }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Über das Projekt</h1>
+    
+    <p>EXTENSIBLE ist ein gemeinsames Projekt der Hochschule Bielefeld und des Epilepsie-Zentrums Bethel. Das Projekt besteht aus 2 Teilen: der <b>Datenbank EpiDat</b> und der <b>Bewertungsplattform EpiRate</b>.</p>
+    
+    <p>In EpiDat findet man Informationen über Hilfsmittel und Assistenzsysteme für Menschen mit Epilepsie. Aber die Produkte sind für jede Person und jede Situation (z.B. Klinik, Werkstatt oder Wohnen) unterschiedlich gut geeignet. Deshalb sollen Nutzer:innen die Produkte aus ihrer persönlichen Sicht bewerten. Diese Bewertungen werden anonym durch die Bewertungsplattform EpiRate gesammelt. Die gesammelten Bewertungen werden dann in die Datenbank EpiDat übertragen und angezeigt.</p>
+
+    <div class="text-center my-4">
+        <img src="{{ url_for('static', filename='img/extensible.png') }}" alt="EXTENSIBLE Übersicht" class="img-fluid" style="max-width: 75%; height: auto;">
+    </div>
+ 
+    <div class="row my-4">
+        <div class="col-md-6">
+            <h4>Bewertungsplattform EpiRate</h4>
+            <p>
+                Auf der Bewertungsplattform EpiRate werden Erfahrungen von Nutzer:innen zu Produkten gesammelt. Nutzer:innen können Produkte auf dieser Internetseite nach bestimmten Kriterien in wenigen Minuten bewerten. Diese Bewertungen werden später in die Datenbank EpiDat aufgenommen.            </p>
+        </div>
+        <div class="col-md-6">
+            <h4>Datenbank EpiDat</h4>
+            <p>
+                In der Datenbank EpiDat sind Hilfsmittel und technische Assistenzsysteme für Menschen mit Epilepsie aufgelistet. Zu diesen Produkten gibt es Informationen von Herstellern und man kann Bewertungen von Nutzer:innen ansehen. Mitarbeitende des Epilepsie-Zentrums können diese Informationen abrufen. So können sie sich informieren und sehen, was andere über ein Produkt denken und wie sie es nutzen. Damit wird auch eine bessere Beratung von Patienten und ihren Angehörigen möglich.            </p>
+        </div>
+    </div>
+    
+    <h3 class="mt-5">Anwendung von EXTENSIBLE in der Praxis</h3>
+    <p>Die Grafik zeigt, wie die praktische Anwendung von EXTENSIBLE im Alltag in 3 Schritten funktioniert.</p>
+    <div class="row align-items-center my-4">
+        <div class="col-md-6">
+            <ol>
+                <li>Nutzer:innen geben Bewertungen in EpiRate ein</li>
+                <li>Bewertungen werden von EpiRate auf EpiDat übertragen und dort in die jeweilige Produktseite integriert</li>
+                <li>Nutzergruppen greifen (in)direkt auf Datenbank EpiDat zu, um sich Produkt-Informationen und Bewertungen anzuschauen</li>
+            </ol>
+        </div>
+        <div class="col-md-6">
+            <img src="{{ url_for('static', filename='img/EXTENSIBLE_Schema_Funktionsweise.svg') }}" alt="EpiRate Anwendung" class="img-fluid">
+        </div>
+    </div>
+
+    <h3 class="mt-5">Nutzen</h3>
+    <div class="row">
+        <div class="col-md-6">
+            <p><b>Informationssammlung</b> zu Hilfsmitteln und technischen Assistenzsystemen bei Epilepsie</p>
+        </div>
+        <div class="col-md-6">
+            <p>Einsatz und Einfacher Zugang in <b>allen Bereichen des Epilepsie-Zentrums</b> Bethel</p>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <p><b>Nutzerbewertungen und Erfahrungsberichte</b> zum Einsatz der Produkte</p>
+        </div>
+        <div class="col-md-6">
+            <p><b>Verbesserung der Beratung</b> zu Hilfsmitteln und technischen Assistenzsystemen</p>
+        </div>
+    </div>
+
+    <h3 class="mt-5">Projektbeteiligte Partner und Förderung</h3>
+    <br>
+    <div class="row justify-content-center align-items-center mb-3">
+        <div class="col-md-4 col-sm-12 mb-3 text-center">
+            <img src="{{ url_for('static', filename='img/HSBI_Logo_RGB_schwarz.svg') }}" alt="HSBI" class="img-fluid" style="max-height: 100px;">
+        </div>
+        <div class="col-md-4 col-sm-12 mb-3 text-center">
+            <img src="{{ url_for('static', filename='img/bethel-logo-1_blue.png') }}" alt="Bethel" class="img-fluid" style="max-height: 100px;">
+        </div>
+        <div class="col-md-4 col-sm-12 mb-3 text-center">
+            <img src="{{ url_for('static', filename='img/epilepsiezentrum bethel_3.png') }}" alt="Epilepsie-Zentrum Bethel" class="img-fluid" style="max-height: 100px;">
+        </div>
+    </div>
+    <div class="row justify-content-center align-items-center mt-3">
+        <div class="col-md-4 col-sm-12 mb-3 text-center">
+            <img src="{{ url_for('static', filename='img/wonkAI-logo-large.png') }}" alt="Wonk" class="img-fluid" style="max-height: 100px;">
+        </div>
+        <div class="col-md-4 col-sm-12 mb-3 text-center">
+            <img src="{{ url_for('static', filename='img/BMFTR_DATIpilot_Logoleiste.svg') }}" alt="DATIpilot" class="img-fluid" style="max-height: 100px;">
+        </div>
+    </div>
+
+
+</div>
+{% endblock %} 

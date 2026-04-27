@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Generierte Tokens{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Generierte Tokens</h2>
+    
+    <div class="text-center mb-4">
+        <a href="{{ url_for('admin.generate_tokens_pdf', batch_time=batch_timestamp) }}" class="btn btn-primary" target="_blank">
+            <i class="fas fa-file-pdf me-2"></i>PDF erstellen
+        </a>
+        <a href="{{ url_for('admin.export_tokens_excel', batch_time=batch_timestamp) }}" class="btn btn-success ms-2">
+            <i class="fas fa-file-excel me-2"></i>Export zu Excel
+        </a>
+        <div class="mt-2">
+            <small class="text-muted">
+                Hinweis: Die PDF-Datei wird in einem neuen Tab geöffnet und kann dann gedruckt werden.<br>
+                Beide Exports enthalten nur die gerade generierten Tokens dieser Session.
+            </small>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for token, url, qr_path in tokens %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Token-Details</h5>
+                    <p class="card-text">
+                        <strong>Token:</strong> {{ token }}<br>
+                        <strong>URL:</strong> <a href="{{ url }}" class="text-decoration-none">{{ url }}</a><br>
+                        <strong>Erstellt am:</strong> {{ created_at.strftime('%d.%m.%Y') }}<br>
+                        <strong>Gültig bis:</strong> {{ valid_until.strftime('%d.%m.%Y') }}
+                    </p>
+                </div>
+                <img src="{{ url_for('static', filename=qr_path) }}" class="card-img-bottom" alt="QR Code" style="max-width: 200px; margin: 10px auto;">
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

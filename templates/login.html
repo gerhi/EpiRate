@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}{{ translate('Login') }}{% endblock %}
+
+{% block content %}
+<div class="container py-10">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+                 <h1 class="h3 fw-normal">Bewertungsportal</h1>
+                 <p>{{ translate('für Hilfsmittel und technische Assistenzsysteme bei Epilepsie') }}</p>
+                 
+            <div class="card">
+                <div class="card-body">
+
+                    <h2 class="h4">Zugang überprüfen</h2>
+
+                    <p class="text-muted mb-4">
+                        Bitte geben Sie Ihren <u data-toggle="tooltip" data-placement="top" title="Tokens gewährleisten einen sicheren und geschützten Zugang, indem Sie Ihre Berechtigung prüfen.">Token</u> ein, um Zugang zur Bewertungsplattform zu erhalten. Sie haben noch keinen Token erhalten aber wollen ein Produkt bewerten? Wenden Sie sich an
+                        extensible@hsbi.de oder eine:n Ansprechpartner:in in Ihrem Epilepsie-Zentrum Bethel um einen Token zu erhalten.
+                    </p>
+
+                    {% if token_invalid %}
+                        <div class="alert alert-danger d-flex align-items-center mb-4 fade show" role="alert">
+                           
+                            <div class="alert-content">
+                                Ungültiger oder bereits verwendeter Token. Bitte versuchen Sie es erneut.
+                            </div>
+                        </div>
+                    {% endif %}
+                    <form method="post" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text" style="background-color: #000b76; color: white; border-radius: 0.25rem 0 0 0.25rem;">
+                                    <i class="fas fa-lock" style="background-color: #000b76; color: white;"></i>
+                                </span>
+                                <input type="text"
+                                       class="form-control"
+                                       id="token"
+                                       name="token"
+                                       placeholder="{{ translate('Token eingeben') }}"
+                                       pattern="[A-Z0-9]{8}"
+                                       required
+                                       autocomplete="off">
+                            </div>
+                            <div class="form-text text-start mt-2">
+                                 {{ translate('Token sind 8 Zeichen lang und enthalten eine Mischung aus Großbuchstaben und Zahlen.') }}
+                            </div>
+                            
+                            <div class="invalid-feedback text-start">
+                                {{ translate('Bitte geben Sie einen gültigen 8-Zeichen-Token ein.') }}
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                 Los geht's!
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form validation
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+
+// Auto-format token input
+document.getElementById('token').addEventListener('input', function(e) {
+    this.value = this.value.toUpperCase();
+    this.value = this.value.replace(/[^A-Z0-9]/g, '');
+    if (this.value.length > 8) {
+        this.value = this.value.slice(0, 8);
+    }
+});
+
+// BS4 Tooltip-Initialisierung
+$(function () { $('[data-toggle="tooltip"]').tooltip(); });
+</script>
+
+{% block extra_head %}
+{% endblock %}
+{% endblock %}

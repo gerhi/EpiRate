@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Admin-Anmeldung{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-lg rounded">
+            <div class="card-body">
+                <h2 class="text-center mb-4">Admin-Login</h2>
+                <p class="text-center mb-4">Bitte melden Sie sich an, um auf das Admin-Dashboard zuzugreifen.</p>
+                
+                <form method="post">
+                    <div class="form-group mb-3">
+                        <label for="username" class="form-label">Benutzername:</label>
+                        <input type="text" class="form-control" id="username" name="username" placeholder="Benutzername eingeben" required>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label for="password" class="form-label">Passwort:</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Passwort eingeben" required>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Anmelden</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,981 @@
+{% extends "base.html" %}
+
+{% block title %}{{ translate('Produkt bewerten') }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h2 class="card-title text-center mb-4">{{ product_name }}</h2>
+
+            <form method="post" id="ratingForm">
+
+                <!-- Initial Questions -->
+                <div id="initialQuestions" class="mb-4">
+                    <h4 class="mb-3">{{ translate('Bevor wir beginnen, erzählen Sie uns bitte etwas über sich:') }}</h4>
+
+                    <!-- Duration of Usage Selection -->
+                    <div class="mb-4" id="durationGroup">
+                        <label class="form-label"><b>Wie lange wird oder wurde das Produkt genutzt?</b></label>
+                        <div class="initial-options-group">
+                            {% set durations = [
+                                ("<4 weeks", translate('Weniger als 4 Wochen')),
+                                ("1-6 months", translate('1-6 Monate')),
+                                ("6-12 months", translate('7-12 Monate')),
+                                (">1 years", translate('Mehr als 1 Jahr'))
+                            ] %}
+                            {% for value, label in durations %}
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" id="duration{{ loop.index }}" name="duration_of_usage"
+                                           value="{{ value }}" required>
+                                    <label class="form-check-label" for="duration{{ loop.index }}">{{ label }}</label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="invalid-feedback initial-question-error" id="durationError" style="display: none;">
+                            {{ translate('Bitte wählen Sie die Nutzungsdauer aus.') }}
+                        </div>
+                    </div>
+
+                    <!-- Role Selection -->
+                    <div class="mb-4" id="roleGroup">
+                        <label class="form-label"><b>Wer sind Sie? Ich bin:</b> </label>
+                        <div class="initial-options-group">
+                            {% set roles = [
+                                ("Person with epilepsy", translate('Person mit Epilepsie')),
+                                ("Affiliated person", translate('An- und Zugehörige:r')),
+                                ("Specialist", translate('Fachkraft (z.B: Pflegende Person / Betreuer:in)')),
+                                ("Doctor", translate('Arzt/Ärztin'))
+                            ] %}
+                            {% for value, label in roles %}
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" id="role{{ loop.index }}" name="user_role" value="{{ value }}"
+                                           required>
+                                    <label class="form-check-label" for="role{{ loop.index }}">{{ label }}</label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="invalid-feedback initial-question-error" id="roleError" style="display: none;">
+                            {{ translate('Bitte wählen Sie Ihre Rolle aus.') }}
+                        </div>
+                    </div>
+
+                    <button type="button" id="startSurvey" class="btn btn-primary mt-3">Weiter</button>
+                </div>
+
+                <!-- Step Progress Indicator -->
+                <div class="mb-4" id="progressContainer" style="display: none;">
+                    <div class="step-progress">
+                        <div class="step-item">
+                            <div class="step-circle step-1" data-step="1">
+                                <span class="step-number">1.</span>
+                                <span class="step-label">Schritt</span>
+                            </div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step-item">
+                            <div class="step-circle step-2" data-step="2">
+                                <span class="step-number">2.</span>
+                                <span class="step-label">Schritt</span>
+                            </div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step-item">
+                            <div class="step-circle step-3" data-step="3">
+                                <span class="step-number">3.</span>
+                                <span class="step-label">Schritt</span>
+                            </div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step-item">
+                            <div class="step-circle step-4" data-step="4">
+                                <span class="step-number">4.</span>
+                                <span class="step-label">Schritt</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rating Groups -->
+                <div id="ratingGroupsContainer" style="display: none;">
+                    {% for i in range(1, 5) %}
+                        <div class="rating-group {% if i == 1 %}active{% endif %}" data-step="{{ i }}">
+                            <div class="card mb-4 border-0">
+                                <div class="card-body">
+                                    <div class="rating-content-wrapper mb-3">
+                                        <!-- Rating Header -->
+                                        <div class="mb-3">
+                                            <div class="d-flex align-items-center">
+                                                <h5 class="card-title mb-0">
+                                                    {% set titles = {
+                                                        1: translate("Benutzerfreundlichkeit"),
+                                                        2: translate("Funktionalität"),
+                                                        3: translate("Zuverlässigkeit"),
+                                                        4: translate("Gesamteindruck")
+                                                    } %}
+                                                    {{ titles[i] }}
+                                                </h5>
+                                                <button type="button" class="btn btn-link btn-sm p-0 ml-2 info-button" 
+                                                        data-toggle="modal" data-target="#categoryModal{{ i }}"
+                                                        title="Weitere Informationen zu dieser Kategorie">
+                                                    <i class="bi bi-info-circle text-primary" style="font-size: 1.25rem;"></i>
+                                                </button>
+                                            </div>
+                                            {% set descriptions = {
+                                                1: "Das Produkt ist einfach zu handhaben und leicht im Alltag zu benutzen. Dazu zählt z.B. auch Reinigung, Wartung und Hygiene.",
+                                                2: "Das Produkt funktioniert wie erwartet und erfüllt seinen Anwendungszweck (Anfallserkennung, Schutz, etc.).",
+                                                3: "Das Produkt funktioniert zuverlässig – ohne Probleme oder Störungen bei der Nutzung.",
+                                                4: "Bitte geben Sie eine abschließende Bewertung für das Produkt insgesamt ab. "
+                                            } %}
+                                            <p class="text-muted mt-2 mb-3">{{ descriptions[i] }}</p>
+                                        </div>
+
+                                        <!-- Validation Message -->
+                                        <div class="invalid-feedback text-danger mb-2" style="display: none;">
+                                            {{ translate('Bitte geben Sie eine Sterne-Bewertung ab, bevor Sie fortfahren.') }}
+                                        </div>
+
+                                        <!-- Star Rating -->
+                                        <div class="rating mb-3" style="justify-content: left; box-shadow: none;">
+                                            {% for star in range(1, 6) %}
+                                                {% set rating_value = 6 - star %}
+                                                {% set star_descriptions = {
+                                                    5: "Ausgezeichnet - Das Produkt übertrifft die Erwartungen",
+                                                    4: "Gut - Das Produkt erfüllt die Erwartungen sehr gut", 
+                                                    3: "Befriedigend - Das Produkt erfüllt die Erwartungen",
+                                                    2: "Ausreichend - Das Produkt erfüllt die Erwartungen teilweise",
+                                                    1: "Mangelhaft - Das Produkt erfüllt die Erwartungen nicht"
+                                                } %}
+                                                <input type="radio"
+                                                       id="star{{ star }}-{{ i }}"
+                                                       name="category{{ i }}_rating"
+                                                       value="{{ rating_value }}" required>
+                                                <label for="star{{ star }}-{{ i }}"
+                                                       class="star-label"
+                                                       data-toggle="tooltip" 
+                                                       data-placement="top"
+                                                       title="{{ rating_value }} {{ translate('Sterne') }} - {{ star_descriptions[rating_value] }}">★</label>
+                                            {% endfor %}
+                                        </div>
+
+
+                                        <!-- Comment Box -->
+                                        <textarea class="form-control mb-3 comment-field"
+                                                  name="category{{ i }}_comment"
+                                                  placeholder="{{ translate('Ihr Kommentar... (optional)') }}"
+                                                  rows="{% if i == 4 %}6{% else %}3{% endif %}"></textarea>
+
+                                        <!-- Prohibited Word Validation -->
+                                        <div class="comment-error-container" style="display: none;">
+                                            <div class="alert alert-danger comment-error mb-4" role="alert">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div class="error-message"></div>
+                                                    <button type="button" class="btn-close comment-error-close" aria-label="Close" style="background: none; border: none; font-size: 1.2rem; line-height: 1; color: #721c24;">&times;</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Navigation Buttons -->
+                                    <div class="d-flex justify-content-between">
+                                        {% if i > 1 %}
+                                            <button type="button" class="btn btn-outline-secondary back-button">
+                                                <i class="bi bi-arrow-left"></i> {{ translate('Zurück') }}
+                                            </button>
+                                        {% else %}
+                                            <div></div> <!-- Platzhalter, damit der Weiter-Button rechts bleibt -->
+                                        {% endif %}
+                                        {% if i < 4 %}
+                                            <button type="button" class="btn btn-primary next-button">
+                                                {{ translate('Weiter') }} <i class="bi bi-arrow-right"></i>
+                                            </button>
+                                        {% else %}
+                                            <button type="button" class="btn btn-primary next-button" id="showSummaryBtn">
+                                                {{ translate('Weiter') }} <i class="bi bi-check2"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Summary Section -->
+                <div id="summarySection" style="display: none;">
+                    <h3 class="mb-4">Fast geschafft!</h3>
+                    <p>Unten können Sie noch einmal Ihre Angabe überprüfen. Über die Bearbeiten-Funktion können Sie Änderungen vornehmen.</p>
+                    <p>Senden Sie abschließend Ihre Bewertung ab.</p>
+
+                    <div id="summaryRatings"></div>
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{{ url_for('public.products') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>{{ translate('Neu beginnen') }}
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            {{ translate('Bewertung abschicken') }} <i class="bi bi-check2"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Category Information Modals -->
+{% for modal_i in range(1, 5) %}
+<div class="modal fade" id="categoryModal{{ modal_i }}" tabindex="-1" aria-labelledby="categoryModalLabel{{ modal_i }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="categoryModalLabel{{ modal_i }}">
+                    {% set modal_titles = {
+                        1: translate("Benutzerfreundlichkeit"),
+                        2: translate("Funktionalität"),
+                        3: translate("Zuverlässigkeit"),
+                        4: translate("Gesamteindruck")
+                    } %}
+                    {{ modal_titles[modal_i] }} - {{ translate("Detaillierte Erklärung") }}
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {% if modal_i == 1 %}
+                    <h6>{{ translate("Was bedeutet Benutzerfreundlichkeit?") }}</h6>
+                    <p>{{ translate("Benutzerfreundlichkeit bezieht sich darauf, wie einfach und intuitiv ein Produkt im Alltag verwendet werden kann. Dies umfasst alle Aspekte der täglichen Handhabung.") }}</p>
+                    
+                    <h6 class="mt-3">{{ translate("Beispiele und Bewertungskriterien:") }}</h6>
+                    <ul>
+                        <li><strong>{{ translate("Bedienung:") }}</strong> {{ translate("Sind die Knöpfe/Schalter leicht zu finden und zu betätigen? Ist die Menüführung verständlich?") }}</li>
+                        <li><strong>{{ translate("Installation/Setup:") }}</strong> {{ translate("War das Produkt einfach einzurichten oder zu installieren?") }}</li>
+                        <li><strong>{{ translate("Reinigung:") }}</strong> {{ translate("Lässt sich das Produkt leicht reinigen? Sind alle Teile gut zugänglich?") }}</li>
+                        <li><strong>{{ translate("Wartung:") }}</strong> {{ translate("Ist die regelmäßige Wartung unkompliziert? Sind Ersatzteile verfügbar?") }}</li>
+                        <li><strong>{{ translate("Hygiene:") }}</strong> {{ translate("Können hygienische Standards problemlos eingehalten werden?") }}</li>
+                        <li><strong>{{ translate("Transport/Mobilität:") }}</strong> {{ translate("Ist das Produkt bei Bedarf einfach zu transportieren?") }}</li>
+                    </ul>
+                    
+                    <div class="alert alert-info mt-3">
+                        <h6>{{ translate("Bewertungshilfe:") }}</h6>
+                        <p class="mb-1"><strong>5 Sterne:</strong> {{ translate("Sehr einfach und intuitiv zu verwenden") }}</p>
+                        <p class="mb-1"><strong>4 Sterne:</strong> {{ translate("Meist einfach, gelegentlich kleine Schwierigkeiten") }}</p>
+                        <p class="mb-1"><strong>3 Sterne:</strong> {{ translate("Durchschnittlich, mit etwas Übung gut handhabbar") }}</p>
+                        <p class="mb-1"><strong>2 Sterne:</strong> {{ translate("Etwas umständlich, erfordert mehr Aufwand") }}</p>
+                        <p class="mb-0"><strong>1 Stern:</strong> {{ translate("Sehr umständlich oder schwer zu handhaben") }}</p>
+                    </div>
+                    
+                {% elif modal_i == 2 %}
+                    <h6>{{ translate("Was bedeutet Funktionalität?") }}</h6>
+                    <p>{{ translate("Die Funktionalität beschreibt, inwieweit das Produkt seinen beabsichtigten Zweck erfüllt und welchen Mehrwert es für den Nutzer bietet.") }}</p>
+                    
+                    <h6 class="mt-3">{{ translate("Beispiele und Bewertungskriterien:") }}</h6>
+                    <ul>
+                        <li><strong>{{ translate("Detektion/Erkennung:") }}</strong> {{ translate("Erkennt das Produkt zuverlässig, was es erkennen soll? (z.B. Anfälle, Bewegungen)") }}</li>
+                        <li><strong>{{ translate("Schutzfunktion:") }}</strong> {{ translate("Bietet das Produkt den erwarteten Schutz vor Verletzungen?") }}</li>
+                        <li><strong>{{ translate("Alarmfunktion:") }}</strong> {{ translate("Funktioniert die Benachrichtigung/der Alarm wie gewünscht?") }}</li>
+                        <li><strong>{{ translate("Verbesserung der Lebensqualität:") }}</strong> {{ translate("Hat das Produkt Ihr Leben oder das Leben des Betroffenen verbessert?") }}</li>
+                        <li><strong>{{ translate("Sicherheitsgefühl:") }}</strong> {{ translate("Fühlen Sie sich durch das Produkt sicherer?") }}</li>
+                        <li><strong>{{ translate("Unabhängigkeit:") }}</strong> {{ translate("Ermöglicht das Produkt mehr Selbstständigkeit im Alltag?") }}</li>
+                    </ul>
+                    
+                    <div class="alert alert-info mt-3">
+                        <h6>{{ translate("Bewertungshilfe:") }}</h6>
+                        <p class="mb-1"><strong>5 Sterne:</strong> {{ translate("Erfüllt den Zweck vollständig und bietet zusätzlichen Nutzen") }}</p>
+                        <p class="mb-1"><strong>4 Sterne:</strong> {{ translate("Erfüllt den Zweck sehr gut") }}</p>
+                        <p class="mb-1"><strong>3 Sterne:</strong> {{ translate("Erfüllt den Zweck ausreichend") }}</p>
+                        <p class="mb-1"><strong>2 Sterne:</strong> {{ translate("Erfüllt den Zweck nur teilweise") }}</p>
+                        <p class="mb-0"><strong>1 Stern:</strong> {{ translate("Erfüllt den Zweck nicht oder unzureichend") }}</p>
+                    </div>
+                    
+                {% elif modal_i == 3 %}
+                    <h6>{{ translate("Was bedeutet Zuverlässigkeit?") }}</h6>
+                    <p>{{ translate("Zuverlässigkeit beschreibt, wie konstant und verlässlich das Produkt funktioniert, ohne unerwartete Probleme oder Ausfälle.") }}</p>
+                    
+                    <h6 class="mt-3">{{ translate("Beispiele und Bewertungskriterien:") }}</h6>
+                    <ul>
+                        <li><strong>{{ translate("Technische Stabilität:") }}</strong> {{ translate("Funktioniert das Produkt ohne Abstürze oder Fehlfunktionen?") }}</li>
+                        <li><strong>{{ translate("Fehlalarme:") }}</strong> {{ translate("Wie häufig gibt es falsche Alarme oder Benachrichtigungen?") }}</li>
+                        <li><strong>{{ translate("Batterielaufzeit:") }}</strong> {{ translate("Hält die Batterie so lange wie angegeben?") }}</li>
+                        <li><strong>{{ translate("Verbindungsqualität:") }}</strong> {{ translate("Ist die Verbindung (WLAN, Bluetooth, etc.) stabil?") }}</li>
+                        <li><strong>{{ translate("Konsistenz:") }}</strong> {{ translate("Funktioniert das Produkt jeden Tag gleich gut?") }}</li>
+                        <li><strong>{{ translate("Verpasste Ereignisse:") }}</strong> {{ translate("Übersieht das Produkt wichtige Situationen?") }}</li>
+                        <li><strong>{{ translate("Materialqualität:") }}</strong> {{ translate("Zeigt das Produkt Verschleißerscheinungen oder Bruchstellen?") }}</li>
+                    </ul>
+                    
+                    <div class="alert alert-info mt-3">
+                        <h6>{{ translate("Bewertungshilfe:") }}</h6>
+                        <p class="mb-1"><strong>5 Sterne:</strong> {{ translate("Funktioniert immer zuverlässig, keine Probleme") }}</p>
+                        <p class="mb-1"><strong>4 Sterne:</strong> {{ translate("Meist zuverlässig, sehr seltene kleine Probleme") }}</p>
+                        <p class="mb-1"><strong>3 Sterne:</strong> {{ translate("Größtenteils zuverlässig, gelegentliche Probleme") }}</p>
+                        <p class="mb-1"><strong>2 Sterne:</strong> {{ translate("Häufigere Probleme, aber noch nutzbar") }}</p>
+                        <p class="mb-0"><strong>1 Stern:</strong> {{ translate("Unzuverlässig, häufige Ausfälle oder Probleme") }}</p>
+                    </div>
+                    
+                {% elif modal_i == 4 %}
+                    <h6>{{ translate("Was bedeutet der Gesamteindruck?") }}</h6>
+                    <p>{{ translate("Der Gesamteindruck ist Ihre abschließende Einschätzung des Produkts, die alle Aspekte Ihrer Erfahrung berücksichtigt.") }}</p>
+                    
+                    <h6 class="mt-3">{{ translate("Was sollten Sie berücksichtigen:") }}</h6>
+                    <ul>
+                        <li><strong>{{ translate("Alle bisherigen Kategorien:") }}</strong> {{ translate("Benutzerfreundlichkeit, Funktionalität und Zuverlässigkeit") }}</li>
+                        <li><strong>{{ translate("Preis-Leistungs-Verhältnis:") }}</strong> {{ translate("Entspricht die Leistung dem Preis?") }}</li>
+                        <li><strong>{{ translate("Würden Sie es weiterempfehlen?") }}</strong> {{ translate("Würden Sie das Produkt Familie oder Freunden empfehlen?") }}</li>
+                        <li><strong>{{ translate("Persönliche Zufriedenheit:") }}</strong> {{ translate("Wie zufrieden sind Sie insgesamt mit dem Produkt?") }}</li>
+                        <li><strong>{{ translate("Erwartungen vs. Realität:") }}</strong> {{ translate("Hat das Produkt Ihre Erwartungen erfüllt?") }}</li>
+                    </ul>
+                    
+                    <div class="alert alert-info mt-3">
+                        <h6>{{ translate("Bewertungshilfe:") }}</h6>
+                        <p class="mb-1"><strong>5 Sterne:</strong> {{ translate("Ausgezeichnetes Produkt, übertrifft Erwartungen") }}</p>
+                        <p class="mb-1"><strong>4 Sterne:</strong> {{ translate("Sehr gutes Produkt, erfüllt Erwartungen sehr gut") }}</p>
+                        <p class="mb-1"><strong>3 Sterne:</strong> {{ translate("Gutes Produkt, erfüllt Erwartungen") }}</p>
+                        <p class="mb-1"><strong>2 Sterne:</strong> {{ translate("Ausreichendes Produkt, einige Mängel") }}</p>
+                        <p class="mb-0"><strong>1 Stern:</strong> {{ translate("Mangelhaftes Produkt, erfüllt Erwartungen nicht") }}</p>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ translate("Schließen") }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        const ratingForm = $('#ratingForm');
+        const initialQuestions = $('#initialQuestions');
+        const progressContainer = $('#progressContainer');
+        const startSurveyBtn = $('#startSurvey');
+        const ratingGroupsContainer = $('#ratingGroupsContainer');
+        const summarySection = $('#summarySection');
+        const summaryRatings = $('#summaryRatings');
+        const showSummaryBtn = $('#showSummaryBtn');
+        const durationError = $('#durationError');
+        const roleError = $('#roleError');
+        const durationGroup = $('#durationGroup');
+        const roleGroup = $('#roleGroup');
+
+        let currentStep = 1; // Can be 0 if editing initial questions
+        let selectedDuration = null;
+        let selectedRole = null;
+        let ratingValues = {}; // Store rating values for each category
+        let commentErrors = {}; //Store comment errors
+        let isSurveyActiveAndPotentiallyDirty = false; // Flag for unsaved changes
+        let commentValidationTimeouts = {}; // Store timeout IDs for debouncing
+        let errorWasDismissed = {}; // Track if user manually dismissed an error for each step
+
+        // Start Survey Button Click
+        startSurveyBtn.on('click', function() {
+            selectedDuration = $('input[name="duration_of_usage"]:checked').val();
+            selectedRole = $('input[name="user_role"]:checked').val();
+            let isValid = true;
+
+            durationError.hide();
+            roleError.hide();
+            durationGroup.removeClass('is-invalid');
+            roleGroup.removeClass('is-invalid');
+
+            if (!selectedDuration) {
+                durationError.show();
+                durationGroup.addClass('is-invalid');
+                isValid = false;
+            }
+
+            if (!selectedRole) {
+                roleError.show();
+                roleGroup.addClass('is-invalid');
+                isValid = false;
+            }
+
+            if (isValid) {
+                initialQuestions.hide();
+                // If currentStep was 0 (editing initial from summary), go back to summary
+                if (currentStep === 0) {
+                    progressContainer.show(); // Show progress again
+                    updateStepProgress(4); // Mark all steps as done leading to summary
+                    showSummary();
+                } else {
+                    progressContainer.show();
+                    ratingGroupsContainer.show();
+                    currentStep = 1; // Explicitly set to 1 if starting survey for the first time
+                    showCurrentStep();
+                    isSurveyActiveAndPotentiallyDirty = true;
+                }
+            }
+        });
+
+        // Clear error when duration is selected
+        $('input[name="duration_of_usage"]').on('change', function() {
+            if ($(this).is(':checked')) {
+                durationError.hide();
+                durationGroup.removeClass('is-invalid');
+            }
+        });
+
+        // Clear error when role is selected
+        $('input[name="user_role"]').on('change', function() {
+            if ($(this).is(':checked')) {
+                roleError.hide();
+                roleGroup.removeClass('is-invalid');
+            }
+        });
+
+        // Show Current Step
+        function showCurrentStep() {
+            $('.rating-group').hide();
+            $('.rating-group[data-step="' + currentStep + '"]').show();
+            updateStepProgress(currentStep);
+        }
+
+        // Update Step Progress
+        function updateStepProgress(stepToMarkActive) {
+            // Reset all steps
+            $('.step-circle').removeClass('active completed');
+            $('.step-line').removeClass('completed');
+            
+            // Mark current and completed steps
+            for (let i = 1; i <= 4; i++) {
+                if (i < stepToMarkActive) {
+                    // Previous steps are completed
+                    $('.step-' + i).addClass('completed');
+                    $('.step-' + i).parent().next('.step-line').addClass('completed');
+                } else if (i === stepToMarkActive && stepToMarkActive <= 4) {
+                    // Current step is active (only if it's one of the 4 rating steps)
+                    $('.step-' + i).addClass('active');
+                }
+                 // If stepToMarkActive indicates summary (e.g., > 4 or special logic),
+                 // mark all as completed.
+                if (stepToMarkActive > 4 || stepToMarkActive === 0) { // currentStep 0 means we were editing initial, now showing summary
+                     $('.step-' + i).addClass('completed');
+                    if (i < 4) { // Only apply to lines between steps
+                        $('.step-' + i).parent().next('.step-line').addClass('completed');
+                    }
+                }
+            }
+        }
+
+        // Next Button Click
+        $(document).on('click', '.next-button', function() {
+            const ratingGroup = $(this).closest('.rating-group');
+            const step = ratingGroup.data('step');
+            const ratingSelected = ratingGroup.find('input[type="radio"]:checked').val();
+
+            if (!ratingSelected) {
+                ratingGroup.find('.invalid-feedback').show();
+                return;
+            }
+
+            ratingGroup.find('.invalid-feedback').hide();
+
+            // Save the rating value for this step
+            ratingValues[step] = ratingSelected;
+
+            if (currentStep < $('.rating-group').length) {
+                currentStep++;
+                showCurrentStep();
+            }
+        });
+
+        // Back Button Click
+        $(document).on('click', '.back-button', function() {
+            if (currentStep > 1) {
+                currentStep--;
+                showCurrentStep();
+            }
+        });
+
+        // Check if all categories have been rated. If so, enable the summary button.
+        function checkAllRated() {
+            let allRated = true;
+            for (let i = 1; i <= 4; i++) {
+                if (!ratingValues[i]) {
+                    allRated = false;
+                    break;
+                }
+            }
+
+            if (allRated) {
+                showSummaryBtn.prop('disabled', false); // Enable
+            } else {
+                showSummaryBtn.prop('disabled', true);  // Disable
+            }
+        }
+
+        // Monitor rating changes and update ratingValues object
+        ratingGroupsContainer.on('change', 'input[type="radio"]', function() {
+            const ratingGroup = $(this).closest('.rating-group');
+            const step = ratingGroup.data('step');
+            const ratingSelected = $(this).val();
+            ratingValues[step] = ratingSelected;
+            
+            // Hide validation error when a rating is selected
+            ratingGroup.find('.invalid-feedback').hide();
+            
+            checkAllRated(); // Check whenever a rating changes.
+        });
+
+        // Show Summary Button Click
+        showSummaryBtn.on('click', function() {
+            //Final Check
+            let allRated = true;
+            for (let i = 1; i <= 4; i++) {
+                if (!ratingValues[i]) {
+                    allRated = false;
+                    break;
+                }
+            }
+            if (!allRated) {
+                 alert('Bitte bewerten Sie alle Kategorien, bevor Sie die Zusammenfassung ansehen.');
+                 return;
+            }
+            
+            // Mark all steps as completed
+            $('.step-circle').addClass('completed');
+            $('.step-line').addClass('completed');
+            
+            showSummary();
+        });
+
+        // Show Summary Function
+        function showSummary() {
+            ratingGroupsContainer.hide();
+            summarySection.show();
+            summaryRatings.empty(); // Clear previous summary items
+
+            // Display initial survey info (duration and role)
+            const initialInfoCard = $('<div class="card mb-3 summary-item">');
+            initialInfoCard.html(`
+                <div class="card-body">
+                    <h5 class="card-title">{{ translate("Zusammenfassung Ihrer Bewertung") }}</h5>
+                    <p class="card-text"><b>{{ translate("Bewertung für:") }}</b> {{product_name}}</p>
+                    <p class="card-text"><b>{{ translate("Nutzungsdauer des Produkts:") }}</b> ${$('input[name="duration_of_usage"][value="' + selectedDuration + '"]').next('label').text()}</p>
+                    <p class="card-text"><b>{{ translate("Ich bin:") }}</b> ${$('input[name="user_role"][value="' + selectedRole + '"]').next('label').text()}</p>
+                    <button type="button" class="btn btn-link edit-button" id="editInitialInfoBtn">{{ translate("Bearbeiten") }}</button>
+                </div>
+            `);
+            summaryRatings.append(initialInfoCard);
+
+            for (let i = 1; i <= 4; i++) {
+                const commentInput = $(`.rating-group[data-step="${i}"] textarea[name="category${i}_comment"]`);
+                const categoryTitle = $(`.rating-group[data-step="${i}"] h5`).text();
+
+
+                if (ratingValues[i]) {
+
+                    const summaryItem = $('<div class="card mt-3 summary-item">');
+                    summaryItem.html(`
+                        <div class="card-body">
+                            <h5 class="card-title">${categoryTitle}</h5>
+                            <p class="card-text">Bewertung: ${generateStarDisplay(ratingValues[i])}</p>
+                            ${commentInput.val() ? `<p class="card-text">Kommentar: ${commentInput.val()}</p>` : ''}
+                            <button type="button" class="btn btn-link edit-button" data-step="${i}">Bearbeiten</button>
+                        </div>
+                    `);
+                    summaryRatings.append(summaryItem);
+                } else {
+                    console.error(`Keine Bewertung für Kategorie ${i} ausgewählt`);
+                }
+            }
+
+            // Edit Button Logic (for rating categories)
+            summarySection.off('click', '.edit-button[data-step]').on('click', '.edit-button[data-step]', function() {
+                const step = $(this).data('step');
+                currentStep = step;
+                summarySection.hide();
+                // progressContainer remains visible
+                ratingGroupsContainer.show();
+                showCurrentStep();
+            });
+
+            // Edit Button Logic (for initial questions)
+            summarySection.off('click', '#editInitialInfoBtn').on('click', '#editInitialInfoBtn', function() {
+                currentStep = 0; // Special indicator for editing initial questions
+                summarySection.hide();
+                ratingGroupsContainer.hide();
+                progressContainer.hide(); 
+                initialQuestions.show();
+
+                // Pre-fill initial questions
+                if(selectedDuration) {
+                    $('input[name="duration_of_usage"][value="' + selectedDuration + '"]').prop('checked', true);
+                }
+                if(selectedRole) {
+                    $('input[name="user_role"][value="' + selectedRole + '"]').prop('checked', true);
+                }
+            });
+        }
+
+        // Submit Form
+        ratingForm.on('submit', function(e) {
+            // Add any final validation or data preparation here before submitting the form.
+            // You can access all selected values and comments using jQuery selectors.
+            // Example: $('input[name="category1_rating"]:checked').val() to get the rating value.
+            //e.preventDefault(); // Prevent default submission for now
+            isSurveyActiveAndPotentiallyDirty = false; // Form submitted, data is saved or being processed
+        });
+
+        // Function to generate star display based on rating value
+        function generateStarDisplay(rating) {
+            const maxStars = 5;
+            let starHtml = '';
+            
+            for (let i = 1; i <= maxStars; i++) {
+                if (i <= rating) {
+                    starHtml += '<span class="star-filled">★</span>';
+                } else {
+                    starHtml += '<span class="star-empty">☆</span>';
+                }
+            }
+            
+            return starHtml;
+        }
+
+
+        // Comment validation with AJAX (debounced)
+        $('.comment-field').on('input', function() {
+            const commentField = $(this);
+            const comment = commentField.val();
+            const ratingGroup = commentField.closest('.rating-group');
+            const step = ratingGroup.data('step');
+            const commentErrorContainer = ratingGroup.find('.comment-error-container');
+            const errorMessageDiv = ratingGroup.find('.error-message');
+
+            // Clear any existing timeout for this step
+            if (commentValidationTimeouts[step]) {
+                clearTimeout(commentValidationTimeouts[step]);
+            }
+
+            // Only auto-clear errors if the comment is very short (less than 10 characters)
+            if (comment.length < 10) {
+                commentErrorContainer.hide();
+                errorMessageDiv.text('');
+                commentErrors[step] = null;
+                errorWasDismissed[step] = false; // Reset dismissal flag
+                return; // No need to validate short comments
+            }
+
+            // For longer comments, only validate if not manually dismissed
+            if (!errorWasDismissed[step]) {
+                // Set a new timeout with longer delay for better debouncing
+                commentValidationTimeouts[step] = setTimeout(function() {
+                    // Check if the current comment value is still the same (user might have continued typing)
+                    const currentComment = commentField.val();
+                    if (currentComment !== comment || currentComment.length < 10) {
+                        return; // User has continued typing or made comment too short, skip this request
+                    }
+                    
+                    $.ajax({
+                        url: '/check_comment',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ comment: currentComment }),
+                        success: function(response) {
+                            // Success: no prohibited words found
+                            // Only clear error if comment value is still the same
+                            if (commentField.val() === currentComment) {
+                                // Only hide if there was actually an error shown before
+                                if (commentErrors[step]) {
+                                    commentErrorContainer.fadeOut(200);
+                                    setTimeout(function() {
+                                        errorMessageDiv.text('');
+                                        commentErrors[step] = null;
+                                    }, 200);
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            // Only show error if the comment value is still the same
+                            if (commentField.val() === currentComment) {
+                                if (xhr.status === 400) {
+                                    const response = JSON.parse(xhr.responseText);
+                                    errorMessageDiv.text(response.message);
+                                    commentErrorContainer.fadeIn(200);
+                                    commentErrors[step] = response.message;
+                                } else {
+                                    errorMessageDiv.text('Fehler bei der Überprüfung des Kommentars.');
+                                    commentErrorContainer.fadeIn(200);
+                                    commentErrors[step] = 'Fehler bei der Überprüfung des Kommentars.';
+                                }
+                            }
+                        }
+                    });
+                }, 200);
+            }
+        });
+
+        // Close button for comment error messages
+        $(document).on('click', '.comment-error-close', function() {
+            const button = $(this);
+            const ratingGroup = button.closest('.rating-group');
+            const step = ratingGroup.data('step');
+            const commentErrorContainer = ratingGroup.find('.comment-error-container');
+            const errorMessageDiv = ratingGroup.find('.error-message');
+            
+            // Hide the error message and mark as manually dismissed
+            commentErrorContainer.hide();
+            errorMessageDiv.text('');
+            commentErrors[step] = null;
+            errorWasDismissed[step] = true; // Mark that user manually dismissed this error
+        });
+
+        // Insert product name at cursor position
+        $(document).on('click', '.insert-product-name-btn', function() {
+            const button = $(this);
+            const ratingGroup = button.closest('.rating-group');
+            const textarea = ratingGroup.find('.comment-field')[0];
+            const productName = {{ product_name|tojson }};
+            
+            // Get cursor position
+            const startPos = textarea.selectionStart;
+            const endPos = textarea.selectionEnd;
+            const textBefore = textarea.value.substring(0, startPos);
+            const textAfter = textarea.value.substring(endPos);
+            
+            // Insert product name at cursor position
+            const newText = textBefore + productName + textAfter;
+            textarea.value = newText;
+            
+            // Set cursor position after inserted text
+            const newCursorPos = startPos + productName.length;
+            textarea.setSelectionRange(newCursorPos, newCursorPos);
+            
+            // Focus back on textarea
+            textarea.focus();
+            
+            // Trigger input event for any validation
+            $(textarea).trigger('input');
+        });
+
+        // Initial disable of summary button
+        showSummaryBtn.prop('disabled', true);
+
+        // Initialize Bootstrap tooltips
+        $('[data-toggle="tooltip"]').tooltip();
+
+        // Warn user before leaving page if survey is active
+        $(window).on('beforeunload', function() {
+            if (isSurveyActiveAndPotentiallyDirty) {
+                // Most modern browsers show a generic message, not the custom one.
+                // Returning a non-empty string (or anything other than null/undefined) triggers the prompt.
+                return '{{ translate("Ihre Eingaben sind möglicherweise nicht gespeichert. Möchten Sie die Seite wirklich verlassen?") }}';
+            }
+        });
+    });
+</script>
+
+<style>
+/* Step Progress Styles */
+.step-progress {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+    position: relative;
+    max-width: 100%;
+}
+
+.step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+}
+
+.step-circle {
+    width: 90px;
+    height: 36px;
+    border-radius: 18px;
+    background-color: #f5f5f5;
+    border: 2px solid #dee2e6;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.step-number {
+    font-size: 1rem;
+    margin-right: 3px;
+}
+
+.step-label {
+    font-size: 0.75rem;
+    font-weight: normal;
+}
+
+.step-circle.active {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+.step-circle.completed {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+}
+
+.step-line {
+    flex-grow: 1;
+    height: 2px;
+    background-color: #dee2e6;
+    margin: 0 5px;
+    position: relative;
+}
+
+.step-line.completed {
+    background-color: #28a745;
+}
+
+/* Initial Questions Radio Button Styling */
+.initial-options-group .form-check {
+    margin-bottom: 0.5rem; /* Reduced margin between radio options */
+}
+
+.initial-options-group .form-check-input {
+    margin-top: 0.3em; /* Align radio button better with label if needed */
+}
+
+.initial-options-group .form-check-label {
+    padding-left: 0.5em; /* Space between radio and label text */
+    cursor: pointer; /* Indicate it's clickable */
+}
+
+.initial-question-error {
+    display: block; /* Ensure it takes space even when empty initially if needed, but hide/show controls it */
+    margin-top: .25rem;
+    font-size: .875em;
+    color: #dc3545; /* Bootstrap default invalid color */
+}
+
+.is-invalid .initial-options-group {
+    border: 1px solid #dc3545; /* Example: red border for invalid group */
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f8d7da; /* Light red background */
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .step-circle {
+        width: 80px;
+        height: 32px;
+        border-radius: 16px;
+    }
+    
+    .step-number {
+        font-size: 0.9rem;
+    }
+    
+    .step-label {
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .step-circle {
+        width: 70px;
+        height: 28px;
+        border-radius: 14px;
+    }
+    
+    .step-label {
+        font-size: 0.65rem;
+    }
+    
+    .step-number {
+        font-size: 0.8rem;
+    }
+}
+
+/* Info button styling */
+.info-button {
+    border: none !important;
+    background: none !important;
+    box-shadow: none !important;
+    text-decoration: none !important;
+}
+
+.info-button:hover {
+    background: none !important;
+    border: none !important;
+    text-decoration: none !important;
+}
+
+.info-button:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.info-button i {
+    transition: color 0.2s ease;
+}
+
+.info-button:hover i {
+    color: #0056b3 !important;
+}
+
+/* Tooltip styling for better readability */
+.tooltip-inner {
+    max-width: 300px;
+    text-align: left;
+    font-size: 0.875rem;
+}
+
+/* Modal content styling */
+.modal-body h6 {
+    color: #495057;
+    font-weight: 600;
+}
+
+.modal-body ul li {
+    margin-bottom: 0.5rem;
+}
+
+.modal-body .alert-info {
+    background-color: #e7f3ff;
+    border-color: #b3d7ff;
+    color: #004085;
+}
+
+/* Comment error styling */
+.comment-error-close {
+    cursor: pointer;
+    padding: 0.375rem 0.75rem;
+    margin: -0.375rem -0.75rem -0.375rem 0;
+    transition: color 0.15s ease-in-out;
+}
+
+.comment-error-close:hover {
+    color: #000 !important;
+    opacity: 0.75;
+}
+
+.comment-error-close:focus {
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+}
+
+/* Summary star display styling */
+.star-filled {
+    color: #ffc107;
+    font-size: 1.2rem;
+    margin-right: 2px;
+}
+
+.star-empty {
+    color: #dee2e6;
+    font-size: 1.2rem;
+    margin-right: 2px;
+}
+
+</style>
+{% endblock %}

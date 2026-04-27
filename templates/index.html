@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}{{ translate('Home') }}{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-md-10">
+            <h1>Willkommen auf EpiRate</h1>
+            <p class="fs-5">
+                <b>Bewertungsplattform für Hilfsmittel & technische Assistenzsysteme bei Epilepsie.</b>
+            </p>
+            <p class="fs-6">
+                EpiRate wurde im Rahmen des BMFTR-geförderten Forschungsprojektes EXTENSIBLE entwickelt. EpiRate unterstützt die Beratung und den Informationsaustausch zu Hilfsmitteln und technischen Assistenzsystemen 
+                für Menschen mit Epilepsie. Mehr Informationen über das Projekt finden Sie <a href="{{ url_for('public.about_project') }}" >hier</a>. 
+            </p>
+        </div>
+        <div class="col-md-4">
+            <div class="row">
+                <div class="col-8 mb-3">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="rating-section">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="fs-1 mb-3">Bewerten Sie jetzt Ihr Hilfsmittel oder technisches Assistenzsystem</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <p class="fs-6 mb-0">
+                    Bitte beachten Sie, dass Sie mit dem Absenden Ihrer Produktbewertung der weiteren Nutzung Ihrer Bewertung zustimmen. Ihre Bewertung wird vertraulich und anonym behandelt. Weitere Informationen hierzu finden Sie unserer <a href="{{ url_for('public.datenschutz') }}">Datenschutzerklärung</a>. 
+                </p>
+            </div>
+            
+            <div class="col-md-4 text-center text-md-end mt-3 mt-md-0">
+                <a class="btn btn-primary btn-lg px-4 py-3 text-white" href="{{ url_for('public.login') }}" role="button">
+                    Produkt bewerten
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+

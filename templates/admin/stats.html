@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+{% block title %}Administrationsstatistiken{% endblock %}
+
+{% block content %}
+<div class="container py-10">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+
+            <h1 class="h3 fw-normal">Bewertungsportal</h1>
+            <p>{{ translate('für Hilfsmittel und technische Assistenzsysteme bei Epilepsie') }}</p>
+
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h2 class="h4">Administrationsstatistiken</h2>
+                    <p class="text-muted">Übersicht über alle Token-Statistiken und Bewertungsdaten.</p>
+
+                    <h3 class="h5 mt-4 fw-bold">Token-Statistiken</h3>
+                    <div class="row mt-3">
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <div class="card h-100 bg-light border-0">
+                                <div class="card-body text-center">
+                                    <div class="display-4 text-primary mb-2">{{ total_tokens }}</div>
+                                    <div class="text-muted"><i class="fas fa-ticket-alt me-1"></i> Tokens gesamt</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <div class="card h-100 bg-light border-0">
+                                <div class="card-body text-center">
+                                    <div class="display-4 text-success mb-2">{{ used_tokens }}</div>
+                                    <div class="text-muted"><i class="fas fa-check-circle me-1"></i> Verwendete Tokens</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <div class="card h-100 bg-light border-0">
+                                <div class="card-body text-center">
+                                    <div class="small text-secondary mb-2">{{ last_created_at or 'N/A' }}</div>
+                                    <div class="text-muted"><i class="fas fa-plus-circle me-1"></i> Letzter Token erstellt</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <div class="card h-100 bg-light border-0">
+                                <div class="card-body text-center">
+                                    <div class="small text-info mb-2">{{ last_used_at or 'N/A' }}</div>
+                                    <div class="text-muted"><i class="fas fa-clock me-1"></i> Letzter Token verwendet</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h3 class="h5 fw-bold">Token-Nutzung (Letzte 7 Tage)</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Datum</th>
+                                    <th>Erstellt</th>
+                                    <th>Verwendet</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for day in usage_data %}
+                                <tr>
+                                    <td>{{ day.date }}</td>
+                                    <td>{{ day.created }}</td>
+                                    <td>{{ day.used }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h3 class="h5 fw-bold">Durchschnittliche Bewertungen pro Produkt</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Produkt</th>
+                                    {% for i in range(1, 5) %}
+                                        <th>Kat{{ i }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rating in avg_ratings %}
+                                <tr>
+                                    <td>{{ rating.name }}</td>
+                                    {% for i in range(1, 5) %}
+                                        {% set avg_key = 'avg_cat' ~ i %}
+                                        <td>{{ "%.2f"|format(rating[avg_key]) if rating[avg_key] is not none else '–' }}</td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h3 class="h5 fw-bold">Neueste Bewertungen</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Token</th>
+                                    <th>Erstellt am</th>
+                                    <th>Produkt</th>
+                                    <th>Bewertungen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rating in recent_ratings %}
+                                <tr>
+                                    <td>{{ rating.token }}</td>
+                                    <td>{{ rating.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                    <td>{{ rating.product_name }}</td>
+                                    <td>
+                                        {% for i in range(1, 5) %}
+                                            {% set rating_key = 'category' ~ i ~ '_rating' %}
+                                            {% if rating[rating_key] %}
+                                                {{ i }}: {{ rating[rating_key] }}{% if not loop.last %}, {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h3 class="h5 fw-bold">Kürzlich erstellte Tokens</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Token</th>
+                                    <th>Erstellt am</th>
+                                    <th>Erstellt von</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for token in recent_tokens %}
+                                <tr>
+                                    <td>{{ token.token }}</td>
+                                    <td>{{ token.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                    <td>{{ token.created_by }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow">
+                <div class="card-body">
+                    <h3 class="h5 fw-bold">Token-Nutzung nach Benutzer</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Benutzer</th>
+                                    <th>Tokens gesamt</th>
+                                    <th>Tokens verwendet</th>
+                                    <th>Nutzungsprozentsatz</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in token_usage_by_user %}
+                                <tr>
+                                    <td>{{ user.created_by }}</td>
+                                    <td>{{ user.total_tokens }}</td>
+                                    <td>{{ user.used_tokens }}</td>
+                                    <td>{{ "%.2f"|format(user.usage_percentage) }}%</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<style>
+    .card {
+        border-radius: 15px;
+        border: none;
+        margin-bottom: 1.5rem;
+    }
+    
+    .card-header {
+        border-top-left-radius: 15px !important;
+        border-top-right-radius: 15px !important;
+    }
+    
+    .btn-primary {
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .table {
+        font-size: 0.9em;
+    }
+    
+    .table td, .table th {
+        padding: 0.5rem;
+    }
+    
+    .form-control:focus {
+        box-shadow: 0 0 0 0.25rem rgba(13,110,253,0.15);
+    }
+    
+    .badge {
+        font-weight: 500;
+        padding: 0.5em 0.8em;
+    }
+    
+    .list-group-item {
+        padding: 0.75rem 1rem;
+    }
+    
+    .display-4 {
+        font-size: 2.5rem;
+        font-weight: 300;
+    }
+    
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+</style>
+{% endblock %}

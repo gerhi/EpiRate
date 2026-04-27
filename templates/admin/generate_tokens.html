@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}Token generieren{% endblock %}
+
+{% block content %}
+<div class="container py-10">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+
+
+            <h1 class="h3 fw-normal">Bewertungsportal</h1>
+            <p>{{ translate('für Hilfsmittel und technische Assistenzsysteme bei Epilepsie') }}</p>
+            
+
+            <div class="card shadow">
+                <div class="card-body">
+
+
+                    <h2 class="h4">Token Generator</h2>
+                    
+                    <p class="text-muted">Generiere Tokens für den Zugang. Jeder Token kann  einmal verwendet werden und wird nach Gebrauch ungültig.</p>
+                    
+                    <form method="post" class="needs-validation" novalidate>
+                        <div class="mb-4">
+                            <label for="num_tokens" class="form-label fw-bold">
+                                Anzahl der Tokens
+                            </label>
+                            <div class="input-group">
+                                <input type="number" 
+                                       class="form-control form-control-lg" 
+                                       id="num_tokens" 
+                                       name="num_tokens" 
+                                       value="5" 
+                                       min="1" 
+                                       max="10000"
+                                       required>
+                            </div>
+                            <div class="form-text text-muted">
+                                Geben Sie eine Zahl zwischen 1 und 10.000 ein
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary" id="generateBtn">
+                                <span id="btnText">Token generieren</span>
+                                <span id="btnSpinner" class="spinner-border spinner-border-sm d-none ms-2" role="status"></span>
+                            </button>
+                        </div>
+                        
+                        <!-- Progress indicator for large token generation -->
+                        <div id="progressSection" class="mt-4 d-none">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Token werden generiert...</strong><br>
+                                Bei großen Mengen (>1000 Tokens) kann dies einige Sekunden dauern. 
+                                Bitte haben Sie Geduld.
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     role="progressbar" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add this to your <head> section if not already present -->
+{% block extra_head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<style>
+    .card {
+        border-radius: 15px;
+        border: none;
+    }
+    
+    .card-header {
+        border-top-left-radius: 15px !important;
+        border-top-right-radius: 15px !important;
+    }
+    
+    .btn-primary {
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-left: none;
+    }
+    
+    .form-control:focus {
+        box-shadow: 0 0 0 0.25rem rgba(13,110,253,0.15);
+    }
+    
+    .alert {
+        border-left: 4px solid #0dcaf0;
+    }
+</style>
+
+<script>
+// Form validation and progress indication
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                } else {
+                    // Show progress for large token counts
+                    const numTokens = parseInt(document.getElementById('num_tokens').value);
+                    if (numTokens >= 1000) {
+                        showProgress();
+                    }
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+
+function showProgress() {
+    // Show spinner on button
+    document.getElementById('btnText').textContent = 'Generiere...';
+    document.getElementById('btnSpinner').classList.remove('d-none');
+    document.getElementById('generateBtn').disabled = true;
+    
+    // Show progress section
+    document.getElementById('progressSection').classList.remove('d-none');
+    
+    // Scroll to progress section
+    document.getElementById('progressSection').scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+    });
+}
+
+// Add input validation for better UX
+document.getElementById('num_tokens').addEventListener('input', function(e) {
+    const value = parseInt(e.target.value);
+    const feedbackDiv = e.target.parentNode.nextElementSibling;
+    
+    if (value > 10000) {
+        e.target.setCustomValidity('Maximum 10.000 Tokens erlaubt');
+        feedbackDiv.textContent = 'Maximum 10.000 Tokens erlaubt';
+        feedbackDiv.className = 'form-text text-danger';
+    } else if (value < 1) {
+        e.target.setCustomValidity('Minimum 1 Token erforderlich');
+        feedbackDiv.textContent = 'Minimum 1 Token erforderlich';
+        feedbackDiv.className = 'form-text text-danger';
+    } else if (value >= 5000) {
+        e.target.setCustomValidity('');
+        feedbackDiv.textContent = 'Achtung: Große Mengen können einige Sekunden dauern';
+        feedbackDiv.className = 'form-text text-warning';
+    } else {
+        e.target.setCustomValidity('');
+        feedbackDiv.textContent = 'Geben Sie eine Zahl zwischen 1 und 10.000 ein';
+        feedbackDiv.className = 'form-text text-muted';
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

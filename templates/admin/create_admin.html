@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block title %}Admin erstellen{% endblock %}
+
+{% block content %}
+<div class="container py-10">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+
+            <h1 class="h3 fw-normal">Bewertungsportal</h1>
+            <p>{{ translate('für Hilfsmittel und technische Assistenzsysteme bei Epilepsie') }}</p>
+
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="h4">Admin erstellen</h2>
+                    
+                    <p class="text-muted">Erstellen Sie ein neues Administratorkonto mit entsprechenden Zugriffsrechten.</p>
+
+                    <form method="POST" action="{{ url_for('admin.create_admin') }}" class="needs-validation" novalidate>
+                        <div class="mb-4">
+                            <label for="username" class="form-label fw-bold">
+                                Benutzername
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <input type="text" 
+                                       class="form-control form-control-lg" 
+                                       id="username" 
+                                       name="username" 
+                                       required
+                                       pattern="[A-Za-z0-9_-]{3,}"
+                                       autocomplete="off">
+                            </div>
+                            <div class="form-text text-muted">
+                                Benutzername muss mindestens 3 Zeichen lang sein
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="password" class="form-label fw-bold">
+                                Passwort
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                <input type="password" 
+                                       class="form-control form-control-lg" 
+                                       id="password" 
+                                       name="password" 
+                                       required
+                                       minlength="8">
+                                <button class="btn btn-outline-secondary" 
+                                        type="button" 
+                                        id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="form-text text-muted">
+                                Passwort muss mindestens 8 Zeichen lang sein
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="role" class="form-label fw-bold">
+                                Rolle
+                            </label>
+                            <select class="form-select form-select-lg" id="role" name="role" required>
+                                <option value="MANAGER">Manager</option>
+                                <option value="ADMIN">Administrator</option>
+                            </select>
+                            <div class="form-text text-muted">
+                                Wählen Sie die entsprechende Berechtigungsstufe
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">
+                                Administrator erstellen
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<style>
+    .card {
+        border-radius: 15px;
+        border: none;
+    }
+    
+    .card-header {
+        border-top-left-radius: 15px !important;
+        border-top-right-radius: 15px !important;
+    }
+    
+    .btn-primary {
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-right: none;
+    }
+    
+    .form-control:focus {
+        box-shadow: 0 0 0 0.25rem rgba(13,110,253,0.15);
+    }
+    
+    .alert {
+        border-left: 4px solid #0dcaf0;
+    }
+
+    .input-group .form-control {
+        border-left: none;
+    }
+
+    .input-group .form-control:focus + .input-group-text {
+        border-color: #86b7fe;
+    }
+</style>
+
+<script>
+// Form validation
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+
+// Password visibility toggle
+document.getElementById('togglePassword').addEventListener('click', function() {
+    const password = document.getElementById('password');
+    const icon = this.querySelector('i');
+    
+    if (password.type === 'password') {
+        password.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        password.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

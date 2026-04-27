@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="{{ session.get('lang', 'de') }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EpiRate - {% block title %}{{ translate('EpiRate') }}{% endblock %}</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="{{ url_for('static', filename='css/select2.min.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='css/bootstrap-icons.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/all.min.css') }}" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon-96x96.png') }}" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}" />
+    
+    <style>
+        .navbar-nav .nav-link {
+            color: #182260 !important;
+        }
+        .navbar-nav .nav-link:hover {
+            color: #182260 !important;
+            opacity: 0.8;
+        }
+        .navbar-toggler {
+            border-color: #182260 !important;
+        }
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%23182260' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E") !important;
+        }
+        
+        /* Bootstrap override: Alle primären Buttons und Links */
+        .btn-primary {
+            background-color: #182260 !important;
+            border-color: #182260 !important;
+        }
+        .btn-primary, .btn-primary:visited {
+            color: white !important;
+        }
+        .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+            background-color: #0f1a47 !important;
+            border-color: #0f1a47 !important;
+            color: white !important;
+        }
+        .text-primary, a.text-primary {
+            color: #182260 !important;
+        }
+        a.text-primary:hover, a.text-primary:focus {
+            color: #0f1a47 !important;
+        }
+        .border-primary {
+            border-color: #182260 !important;
+        }
+        .bg-primary {
+            background-color: #182260 !important;
+        }
+        /* Normale Links in dunkler Farbe */
+        a:not(.nav-link):not(.footer-link):not(.btn):not(.text-primary) {
+            color: #2D3E50 !important;
+            text-decoration: underline !important;
+        }
+        a:not(.nav-link):not(.footer-link):not(.btn):not(.text-primary):hover {
+            color: #1a252f !important;
+        }
+        /* Nur spezifische Links mit text-primary Klasse */
+        a.text-primary:not(.nav-link):not(.footer-link):not(.btn) {
+            color: #182260 !important;
+        }
+        a.text-primary:not(.nav-link):not(.footer-link):not(.btn):hover {
+            color: #0f1a47 !important;
+        }
+        .navbar-logos {
+            display: flex;
+            align-items: center;
+            margin-left: 20px;
+        }
+        .navbar-logo-link {
+            margin: 0 10px;
+        }
+        .navbar-logo {
+            height: 40px;
+            width: auto;
+        }
+        .footer-links {
+            background-color: #182260;
+            color: white;
+        }
+        .footer-link {
+            color: white;
+            text-decoration: none;
+        }
+        .footer-link:hover {
+            color: #f8f9fa;
+            text-decoration: underline;
+        }
+        .footer-container {
+            position: relative;
+            width: 100%;
+            margin-top: 2rem;
+            margin-bottom: 0;
+        }
+        .footer-wave {
+            display: block;
+            width: 100%;
+            margin-bottom: -6px; /* Entfernt den Abstand zwischen dem SVG und dem Footer-Content */
+        }
+        .footer-content {
+            background-color: #182260;
+            color: white;
+            text-align: center;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+        .partner-logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+        .partner-logo-link {
+            margin: 0 15px;
+        }
+        .partner-logo {
+            height: 50px;
+            width: auto;
+            filter: brightness(0) invert(1); /* Macht die Logos weiß */
+            transition: transform 0.3s ease;
+        }
+        .partner-logo:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Footer Partner Logos (rechts) */
+        .footer-partner-logo {
+            height: 35px;
+            width: auto;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        
+        /* Spezifische Filter nur für Logos, die es benötigen */
+        .footer-partner-logo[alt="DATIpilot"] {
+            /* Spezifische Styles für DATIpilot Logo falls benötigt */
+        }
+        
+        .footer-partner-logo:hover {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+        
+        .footer-logos {
+            min-height: 35px; /* Sorgt für konsistente Höhe */
+        }
+        
+        /* Responsive Anpassungen */
+        /* Aktive Menüelemente */
+        .nav-link.active {
+            color: #182260 !important;
+            font-weight: bold;
+            border-bottom: 2px solid #182260;
+        }
+        
+        @media (max-width: 767px) {
+            .footer-logos {
+                justify-content: center !important;
+                margin-top: 1rem;
+            }
+            
+            .col-md-4.text-right {
+                text-align: center !important;
+            }
+            
+            .footer-partner-logo {
+                height: 30px;
+            }
+        }
+    </style>
+
+    {% block head %}{% endblock %}
+    {% block extra_head %}{% endblock %}
+ 
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <a class="navbar-brand" href="{{ url_for('public.index') }}"><img src="{{ url_for('static', filename='img/Logo_EpiRate_big.svg') }}"  alt="EpiRate Logo" style="width: 100px;"></a>
+        
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item"> 
+                    <a class="nav-link {{ 'active' if request.endpoint in ['public.login', 'public.products', 'public.rate'] else '' }}" href="{{ url_for('public.login') }}"><strong>{{ translate('Produkt bewerten') }}</strong></a>
+               </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'public.about_project' else '' }}" href="{{ url_for('public.about_project') }}"><strong>{{ translate('About the Project') }}</strong></a>
+               </li>
+
+               <li class="nav-item">
+                <a class="nav-link {{ 'active' if request.endpoint == 'public.contact_page' else '' }}" href="{{ url_for('public.contact_page') }}"><strong>{{ translate('Contact') }}</strong></a>
+           </li>
+                 <li class="nav-item">
+                      <a class="nav-link {{ 'active' if request.path.startswith('/admin') and request.endpoint != 'admin.logout' else '' }}" href="{{ url_for('admin.dashboard') }}"><strong>{{ translate('Admin Dashboard') }}</strong></a>
+                 </li>
+
+              {% if session.get('admin_logged_in') %}
+                 <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.logout') }}"><strong>{{ translate('Logout') }}</strong></a>
+                  </li>{% endif %}
+               
+               
+            </ul>
+        </div>
+    </nav>
+
+    <div class="content-wrapper">
+        <div class="container mt-4">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+
+                {{ translate(message) }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+            {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+
+        </div>
+    </div>
+
+    <footer class="footer-container">
+        <svg viewBox="0 0 1440 131" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: auto; margin: 0; padding: 0; vertical-align: bottom;">
+            <path d="M1440 0.907114V131H0V102.838C0 102.838 255.034 68.326 419.046 72.6365C579.575 76.8555 719.437 122.847 827.202 122.847C954.117 122.847 1058.5 104.349 1178.66 46.9652C1298.82 -10.4182 1440 0.907114 1440 0.907114Z" fill="#182260"/>
+            </svg>
+        <div class="footer-content">
+            <div class="container py-3" style="margin-top: -1px;">
+                <div class="row align-items-center">
+                    <div class="col-md-8 text-left">
+                        <a href="{{ url_for('public.impressum') }}" class="footer-link">{{ translate('Impressum') }}</a>
+                        <a href="{{ url_for('public.datenschutz') }}" class="footer-link mx-2">{{ translate('Datenschutz') }}</a>
+                        <a href="{{ url_for('public.contact_page') }}" class="footer-link mx-2">{{ translate('Kontakt') }}</a>
+                        <span class="ml-3">© EXTENSIBLE 2025–2026</span>
+                    </div>
+                    <div class="col-md-4 text-right">
+                        <div class="footer-logos d-flex justify-content-end align-items-center">
+                            <a href="https://www.hsbi.de" target="_blank" rel="noopener" class="footer-logo-link mx-2">
+                                <img src="{{ url_for('static', filename='img/HSBI_Logo_RGB_weiss.svg') }}" alt="HSBI" class="footer-partner-logo">
+                            </a>
+                            <a href="https://www.bethel.de" target="_blank" rel="noopener" class="footer-logo-link mx-2">
+                                <img src="{{ url_for('static', filename='img/bethel-logo-1_white.png') }}" alt="Bethel" class="footer-partner-logo">
+                            </a>
+                            <a href="https://www.bmftr.bund.de" target="_blank" rel="noopener" class="footer-logo-link mx-2">
+                                <img src="{{ url_for('static', filename='img/BMFTR_DATIpilot_Logoleiste.svg') }}" alt="DATIpilot" class="footer-partner-logo">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+</body>
+</html>

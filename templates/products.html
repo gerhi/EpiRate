@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+{% block title %}{{ translate('Select Product') }}{% endblock %}
+
+{% block content %}
+<div class="container py-10">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+
+            <h1 class="h3 fw-normal">Bewertungsportal</h1>
+            <p>{{ translate('für Hilfsmittel und technische Assistenzsysteme bei Epilepsie') }}</p>
+            
+            <div class="card">
+                
+
+                <div class="card-body">
+
+
+                <h2 class="h4">Welches Produkt möchten Sie bewerten?</h2>
+
+                <p class="text-muted">
+                    Wählen Sie den Produktnamen aus der Liste aus oder suchen nach diesem.
+                </p>
+
+                    <form class="needs-validation" novalidate>
+                        <div class="mb-4">
+                            <div id="productSearchWrapper" class="input-group product-search-wrapper" style="position: relative;">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" id="productSearch" class="form-control form-control-lg" placeholder="{{ translate('Search for a product...') }}" autocomplete="off" required>
+                            </div>
+                            <div id="productListCollapsedHint" class="form-text text-muted mt-1" style="display: none;">
+                                {{ translate('Klicken zum Ändern der Auswahl') }}
+                            </div>
+                            <div class="invalid-feedback">
+                                {{ translate('Please select a product from the list.') }}
+                            </div>
+                        </div>
+
+                        <div id="productListWrapper" class="product-list-wrapper mb-3">
+                            <ul id="productResults" class="list-group mb-3" style="max-height: 300px; overflow-y: auto;">
+                                {% for product in all_products %}
+                                    <li class="list-group-item list-group-item-action" data-product-id="{{ product.id }}">{{ product.name }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+
+                        <div id="noProductFoundMessage" class="list-group-item text-muted mb-3" style="display: none;">
+                            {{ translate('Sie wollen ein Hilfsmittel oder technisches Assistenzsystem bewerten und können es in der Liste nicht finden? Gerne nehmen wir das Produkt in die Bewertungsplattform mit auf. Wenden Sie sich dafür an extensible@hsbi.de.') }}
+                        </div>
+
+                        <div id="productDetails" class="card mb-4" style="display: none;">
+                            <div class="card-body">
+                                <div id="manufacturerInfo" style="display: none;">
+                                    <strong>{{ translate('Manufacturer') }}:</strong> 
+                                    <span id="manufacturerValue"></span>
+                                </div>
+                                <div id="categoryInfo" style="display: none;">
+                                    <strong>{{ translate('Category') }}:</strong> 
+                                    <span id="categoryValue"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button id="rateProductBtn" type="button" class="btn btn-primary btn-lg" style="display:none;" disabled>
+                                {{ translate('Rate Product') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_head %}
+<style>
+    .product-list-wrapper {
+        max-height: 320px;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out, opacity 0.2s ease;
+    }
+    .product-list-wrapper.collapsed {
+        max-height: 0;
+        margin-bottom: 0 !important;
+        opacity: 0;
+    }
+    .product-search-wrapper.has-selection input {
+        cursor: pointer;
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const productSearch = document.getElementById('productSearch');
+        const productResults = document.getElementById('productResults');
+        const productListWrapper = document.getElementById('productListWrapper');
+        const productSearchWrapper = document.getElementById('productSearchWrapper');
+        const productListCollapsedHint = document.getElementById('productListCollapsedHint');
+        const rateProductBtn = document.getElementById('rateProductBtn');
+        const productDetails = document.getElementById('productDetails');
+        const manufacturerInfo = document.getElementById('manufacturerInfo');
+        const categoryInfo = document.getElementById('categoryInfo');
+        const manufacturerValue = document.getElementById('manufacturerValue');
+        const categoryValue = document.getElementById('categoryValue');
+        const noProductFoundMessage = document.getElementById('noProductFoundMessage');
+        let selectedProductId = null;
+        let selectedListItem = null;
+        const form = document.querySelector('.needs-validation');
+        const allProducts = Array.from(productResults.children);
+
+        function collapseList() {
+            productListWrapper.classList.add('collapsed');
+            productSearchWrapper.classList.add('has-selection');
+            productSearch.readOnly = true;
+            productListCollapsedHint.style.display = 'block';
+        }
+
+        function expandList() {
+            productListWrapper.classList.remove('collapsed');
+            productSearchWrapper.classList.remove('has-selection');
+            productSearch.readOnly = false;
+            productListCollapsedHint.style.display = 'none';
+        }
+
+        function isListCollapsed() {
+            return productListWrapper.classList.contains('collapsed');
+        }
+
+        function clearSelection() {
+            selectedProductId = null;
+            if (selectedListItem) {
+                selectedListItem.classList.remove('selected');
+                selectedListItem = null;
+            }
+            rateProductBtn.disabled = true;
+            rateProductBtn.style.display = 'none';
+            productSearch.classList.remove('is-valid');
+            productSearch.readOnly = false;
+            productDetails.style.display = 'none';
+            noProductFoundMessage.style.display = 'none';
+            productListCollapsedHint.style.display = 'none';
+            productSearchWrapper.classList.remove('has-selection');
+            expandList();
+        }
+
+        function filterProducts(query) {
+            query = query.toLowerCase();
+            let productsFound = false;
+            allProducts.forEach(li => {
+                if (li.textContent.toLowerCase().includes(query)) {
+                    li.style.display = '';
+                    productsFound = true;
+                } else {
+                    li.style.display = 'none';
+                }
+            });
+
+            if (productsFound) {
+                noProductFoundMessage.style.display = 'none';
+            } else {
+                noProductFoundMessage.style.display = 'block';
+            }
+        }
+
+        productSearch.addEventListener('input', function() {
+            const query = this.value.trim();
+            if (query.length < 1) {
+                allProducts.forEach(li => li.style.display = '');
+                clearSelection();
+                noProductFoundMessage.style.display = 'none';
+                return;
+            }
+            filterProducts(query);
+        });
+
+        productResults.addEventListener('click', function(event) {
+            if (event.target.tagName === 'LI' && event.target.dataset.productId) {
+                if (selectedListItem) {
+                    selectedListItem.classList.remove('selected');
+                }
+
+                productSearch.value = event.target.textContent;
+                selectedProductId = event.target.dataset.productId;
+                selectedListItem = event.target;
+                selectedListItem.classList.add('selected');
+
+                rateProductBtn.style.display = 'block';
+                rateProductBtn.disabled = false;
+
+                productSearch.classList.remove('is-invalid');
+                productSearch.classList.add('is-valid');
+
+                collapseList();
+
+                // Fetch and display product details
+                fetch(`/product_details/${selectedProductId}`)
+                    .then(response => response.json())
+                    .then(details => {
+                        productDetails.style.display = 'block';
+                        
+                        if (details.manufacturer && details.manufacturer !== 'MISSING') {
+                            manufacturerInfo.style.display = 'block';
+                            manufacturerValue.textContent = details.manufacturer;
+                        } else {
+                            manufacturerInfo.style.display = 'none';
+                        }
+                        
+                        if (details.category && details.category !== 'MISSING') {
+                            categoryInfo.style.display = 'block';
+                            categoryValue.textContent = details.category;
+                        } else {
+                            categoryInfo.style.display = 'none';
+                        }
+                    });
+            }
+        });
+
+        rateProductBtn.addEventListener('click', function() {
+            form.classList.add('was-validated');
+
+            if (selectedProductId) {
+                window.location.href = `/rate/${selectedProductId}`;
+            } else {
+                productSearch.classList.add('is-invalid');
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        });
+
+        productSearch.addEventListener('focus', function() {
+            if (isListCollapsed()) {
+                expandList();
+                productSearch.classList.remove('is-invalid');
+            }
+        });
+
+        productSearch.addEventListener('click', function() {
+            if (isListCollapsed()) {
+                expandList();
+                productSearch.classList.remove('is-invalid');
+            }
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

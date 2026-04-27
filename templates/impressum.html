@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}{{ translate('Impressum') }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">{{ translate('Impressum') }}</h1>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <p><b>Angaben gemäß § 5 TMG:</b></p>
+                    <p>Hochschule Bielefeld</p>
+                    <p>Forschungsprojekt EXTENSIBLE</p>
+                    <p>Fachbereich Wirtschaft</p>
+                    <p>Interaktion 1</p>
+                    <p>33619 Bielefeld</p>
+                    <p>Deutschland</p>
+                    
+                    <p><b>Vertreten durch</b></p>
+                    <p>Projektleitung: Prof. Dr. Gerrit Hirschfeld</p>
+                    
+                    <p><b>Kontakt</b></p>
+                    <p>E-Mail: <a href="mailto:extensible@hsbi.de">extensible@hsbi.de</a></p>
+                    
+                    <p><b>Verantwortlich für den Inhalt</b></p>
+                    <p>Projektleitung: Prof. Dr. Gerrit Hirschfeld</p>
+                    <p>Hochschule Bielefeld, Fachbereich Wirtschaft</p>
+                    
+                    <p><b>Haftungsausschluss</b></p>
+                    <p>Die Inhalte dieser Website wurden mit größtmöglicher Sorgfalt erstellt. Dennoch können wir keine Gewähr für die Richtigkeit, Vollständigkeit oder Aktualität der Inhalte übernehmen.</p>
+                    <p><b>Urheberrecht</b></p>
+                    <p>Die Inhalte und Werke dieser Webseite unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des/der Urheber/in.</p>
+                    <p><b>Externe Links</b></p>
+                    <p>Diese Website enthält gegebenenfalls Links zu externen Websites. Für die Inhalte dieser externen Seiten sind ausschließlich deren Betreiber:innen verantwortlich.</p>
+                    <p><b>Datenschutz</b></p>
+                    <p>Informationen zum Datenschutz und zur Verarbeitung personenbezogener Daten finden Sie in unserer <a href="{{ url_for('public.datenschutz') }}">Datenschutzerklärung</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

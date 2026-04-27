@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Administratoren verwalten{% endblock %}
+
+{% block content %}
+<div class="container py-10">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+
+            <h1 class="h3 fw-normal">Bewertungsportal</h1>
+            <p>{{ translate('für Hilfsmittel und technische Assistenzsysteme bei Epilepsie') }}</p>
+
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h2 class="h4">Administratorenliste</h2>
+                    
+                    <p class="text-muted">Übersicht aller Administratoren und deren Berechtigungen im System.</p>
+
+                    {% if admins %}
+                        <div class="table-responsive mt-4">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Benutzername</th>
+                                        <th>Rolle</th>
+                                        <th>Aktionen</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for admin in admins %}
+                                        <tr>
+                                            <td>{{ admin.username }}</td>
+                                            <td>
+                                                {% if admin.role == 'ADMIN' %}Administrator{% else %}Manager{% endif %}
+                                            </td>
+                                            <td>
+                                                {% if admins|length > 1 %}
+                                                    <form method="POST" action="{{ url_for('admin.delete_admin', admin_id=admin.id) }}" class="d-inline">
+                                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Sind Sie sicher, dass Sie diesen Administrator löschen möchten?');">
+                                                            <i class="fas fa-trash-alt"></i> Löschen
+                                                        </button>
+                                                    </form>
+                                                {% endif %}
+                                                <a href="{{ url_for('admin.reset_password', admin_id=admin.id) }}" class="btn btn-warning btn-sm">
+                                                    <i class="fas fa-key"></i> Passwort zurücksetzen
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info mt-4">Keine Administratoren gefunden.</div>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-end mt-4">
+                        <a href="{{ url_for('admin.create_admin') }}" class="btn btn-primary">
+                            Neuen Administrator erstellen
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<style>
+    .card {
+        border-radius: 15px;
+        border: none;
+    }
+    
+    .card-header {
+        border-top-left-radius: 15px !important;
+        border-top-right-radius: 15px !important;
+    }
+    
+    .btn-primary {
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .table {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+    
+    .table thead {
+        background-color: #f8f9fa;
+    }
+    
+    .badge {
+        font-size: 0.9em;
+        padding: 0.5em 0.8em;
+    }
+    
+    .alert {
+        border-left: 4px solid #0dcaf0;
+    }
+    
+    .form-control:focus {
+        box-shadow: 0 0 0 0.25rem rgba(13,110,253,0.15);
+    }
+</style>
+{% endblock %}
+{% endblock %}

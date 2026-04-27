@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %}Produkte verwalten{% endblock %}
+
+{% block content %}
+<div class="container py-10">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+
+            <h1 class="h3 fw-normal">Bewertungsportal</h1>
+            <p>{{ translate('für Hilfsmittel und technische Assistenzsysteme bei Epilepsie') }}</p>
+
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h2 class="h4">{{ translate('Produkte verwalten') }}</h2>
+                    <p class="text-muted">Verwalten Sie die Produkte im Bewertungsportal. Importieren Sie neue Produkte oder bearbeiten Sie bestehende.</p>
+
+                    {% if message %}
+                    <div class="alert alert-{{ message.type }} mt-3" role="alert">
+                        {{ message.text }}
+                        {% if message.details %}
+                            <hr>
+                            <p><strong>Details:</strong></p>
+                            <ul class="mb-0">
+                                {% for detail in message.details %}
+                                    {% if '===' in detail %}
+                                        </ul>
+                                        <p class="mt-3 mb-1 fw-bold">{{ detail|replace('===', '')|trim }}</p>
+                                        <ul class="mb-0">
+                                    {% else %}
+                                        <li>{{ detail }}</li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Import Form -->
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h3 class="h5 fw-bold">{{ translate('Produkte aus Excel importieren') }}</h3>
+                    <p class="text-muted small">Laden Sie eine Excel-Datei hoch, um mehrere Produkte auf einmal zu importieren. Bestehende Produkte werden automatisch aktualisiert, wenn sich die Eigenschaften geändert haben.</p>
+                    
+                    <form method="POST" enctype="multipart/form-data" class="needs-validation mt-3" novalidate>
+                        <div class="mb-4">
+                            <label for="file" class="form-label fw-bold">{{ translate('Excel-Datei (.xlsx, .xls)') }}</label>
+                            <div class="input-group">
+                                <input type="file" class="form-control form-control-lg" id="file" name="file" accept=".xlsx,.xls" required>
+                            </div>
+                            <div class="form-text text-muted">
+                                Die Datei sollte Spalten für Name, Hersteller und Kategorie enthalten
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">
+                               {{ translate('Importieren') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Products Table -->
+            <div class="card shadow">
+                <div class="card-body">
+                    <h3 class="h5 fw-bold">{{ translate('Aktuelle Produkte') }}</h3>
+                    <p class="text-muted small">Liste aller im System verfügbaren Produkte.</p>
+                    
+                    <div class="table-responsive mt-3">
+                        <table class="table table-striped">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>{{ translate('ID') }}</th>
+                                    <th>{{ translate('Name') }}</th>
+                                    <th>{{ translate('Hersteller') }}</th>
+                                    <th>{{ translate('Kategorie') }}</th>
+                                    <th>{{ translate('Bewertungen') }}</th>
+                                    <th>{{ translate('Aktionen') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in products %}
+                                <tr>
+                                    <td>{{ product.id }}</td>
+                                    <td>{{ product.name }}</td>
+                                    <td>{{ product.manufacturer }}</td>
+                                    <td>{{ product.category }}</td>
+                                    <td>{{ product.rating_count }}</td>
+                                    <td>
+                                        {% if product.rating_count == 0 %}
+                                        <form method="POST" style="display: inline;" onsubmit="return confirm('{{ translate('Sind Sie sicher, dass Sie dieses Produkt löschen möchten?') }}');">
+                                            <input type="hidden" name="delete_product" value="{{ product.id }}">
+                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash-alt me-1"></i>{{ translate('Löschen') }}
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                        <button class="btn btn-danger btn-sm" disabled title="{{ translate('Produkte mit Bewertungen können nicht gelöscht werden') }}">
+                                            <i class="fas fa-trash-alt me-1"></i>{{ translate('Löschen') }}
+                                        </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<style>
+    .card {
+        border-radius: 15px;
+        border: none;
+        margin-bottom: 1.5rem;
+    }
+    
+    .card-header {
+        border-top-left-radius: 15px !important;
+        border-top-right-radius: 15px !important;
+    }
+    
+    .btn-primary {
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-right: none;
+    }
+    
+    .form-control:focus {
+        box-shadow: 0 0 0 0.25rem rgba(13,110,253,0.15);
+    }
+    
+    .alert {
+        border-left: 4px solid #0dcaf0;
+    }
+    
+    .table {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+    
+    .table thead {
+        background-color: #f8f9fa;
+    }
+</style>
+
+<script>
+// Form validation
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+</script>
+{% endblock %} 
